@@ -17,6 +17,16 @@ npm run build    # production build in dist/
 
 Tested with Node 20, Chrome and Edge. Mobile widths are supported down to Android phone size. iOS is out of scope.
 
+## Live demo on GitHub Pages
+
+`.github/workflows/deploy.yml` builds this app and publishes `dist/` on every push to `main`.
+
+- The build uses `--base=/MediLynk/`, which matches a repository named `MediLynk` served at
+  `https://<user>.github.io/MediLynk/`. Rename the repository and change that flag in the workflow together.
+- `dist/index.html` is copied to `dist/404.html` so a deep link such as `/MediLynk/login` survives a refresh.
+- One-time setup: repository **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+- The hosted demo is still mock-only. Data lives in each visitor's browser and resets on reload.
+
 ## Seed accounts (all synthetic)
 
 | Role | Email | Password |

@@ -33,3 +33,16 @@
   CSS pass were removed.
 - Still open: transparent PNG/SVG exports would remove the need for the white chip.
 
+## 2026-10-26 — GitHub Pages deployment
+
+- Initialised the repository (`main`) and committed the project, including the design
+  system, the Lucide icon pass and the supplied logo.
+- Logo URLs now come from `src/utils/brandAssets.js`, which prefixes
+  `import.meta.env.BASE_URL`, so the same build works at the domain root and under a
+  subpath. Vite already rebases the font and favicon URLs on its own.
+- Added `.github/workflows/deploy.yml`: runs the tests, builds with
+  `--base=/MediLynk/`, copies `index.html` to `404.html` for deep links, and deploys
+  through GitHub Pages.
+- `.gitignore` now also excludes `.env` files.
+
+
