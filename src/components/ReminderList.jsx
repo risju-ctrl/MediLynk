@@ -1,11 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
+import { Mail, MessageSquare, Smartphone } from 'lucide-react';
 import { listReminders } from '../api/appointments.js';
 import StatusBadge from './StatusBadge.jsx';
-import { fmtDateTime } from '../utils/timeRules.js';
+const fmtShort = (value) => new Date(value).toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
-const CHANNEL = { email: 'Email', sms: 'SMS', push: 'Push notification' };
+const CHANNEL = {
+  email: ['Email', Mail],
+  sms: ['SMS', MessageSquare],
+  push: ['Push', Smartphone],
+};
 
-// REQ-04: reminders at 24 h and 1 h before the appointment, per channel, marked simulated.
+// Reminders at 24 h and 1 h before the visit, one per channel, with their exact scheduled time.
 export default function ReminderList({ appointmentId }) {
   const { data, isPending, error } = useQuery({
     queryKey: ['reminders', appointmentId],
@@ -14,39 +19,30 @@ export default function ReminderList({ appointmentId }) {
     refetchInterval: 15000,
   });
 
-  if (!appointmentId) return <p className="text-sm text-slate-500">Choose an appointment to see its reminders.</p>;
-  if (isPending) return <p className="text-sm text-slate-500">Loading reminders...</p>;
-  if (error) return <p className="text-sm text-red-600">{error.message}</p>;
+  if (!appointmentId) return <p className="muted">Choose an appointment to see its reminders.</p>;
+  if (isPending) return <p className="muted">Loading reminders…</p>;
+  if (error) return <p className="form-error">{error.message}</p>;
 
   return (
-    <div>
-      <p className="mb-2 text-xs font-medium uppercase tracking-wide text-amber-700">
-        Prototype only — no real Email, SMS or Push is sent.
-      </p>
-      <table className="w-full text-sm" data-testid="reminder-table">
+    <div className="reminders">
+      <table className="table" data-testid="reminder-table">
         <thead>
-          <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
-            <th className="py-2">Lead time</th>
-            <th className="py-2">Channel</th>
-            <th className="py-2">Scheduled</th>
-            <th className="py-2">Status</th>
-          </tr>
+          <tr><th>Reminder</th><th>Scheduled for</th><th>Status</th></tr>
         </thead>
         <tbody>
-          {data.reminders.map((reminder) => (
-            <tr key={reminder.id} className="border-b border-slate-100 last:border-0">
-              <td className="py-2">{reminder.leadHours} h before</td>
-              <td className="py-2">{CHANNEL[reminder.channel]}</td>
-              <td className="py-2" data-testid={`reminder-time-${reminder.leadHours}-${reminder.channel}`}>
-                {fmtDateTime(reminder.scheduledAt)}
-              </td>
-              <td className="py-2">
-                <StatusBadge status={reminder.status} />
-              </td>
-            </tr>
-          ))}
+          {data.reminders.map((reminder) => {
+            const [label, Icon] = CHANNEL[reminder.channel] || [reminder.channel, Mail];
+            return (
+              <tr key={reminder.id}>
+                <td><span className="inline-icon"><Icon size={14} aria-hidden="true" /><span className="cell-stack"><strong>{label}</strong><small>{reminder.leadHours} h before</small></span></span></td>
+                <td className="num" data-testid={`reminder-time-${reminder.leadHours}-${reminder.channel}`}>{fmtShort(reminder.scheduledAt)}</td>
+                <td><StatusBadge status={reminder.status} /></td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
+      <p className="fine-print">Demo: reminders are simulated. Nothing is actually emailed, texted or pushed.</p>
     </div>
   );
 }

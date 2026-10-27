@@ -52,7 +52,7 @@ The sign-in screen has one-click buttons to fill these in. Two patient accounts 
 | Auth | A fake `mock-jwt.<userId>.<timestamp>` token in `localStorage`. No signing, no HTTPS, no password hashing. |
 | Data | Resets on refresh unless you press **Reset demo data**. |
 
-## Test panel (bottom-right button, labelled "prototype only")
+## Demo tools (toolbar button, top right)
 
 | Control | What it does |
 |---|---|
@@ -147,4 +147,4 @@ src/
 ```
 
 Stack: Vite + React 18 (JavaScript), React Router v6, TanStack Query, React Hook Form + Zod, FullCalendar,
-Tailwind CSS.
+Tailwind CSS (reset only), Inter, Lucide icons. Design notes are in `design-system/MASTER.md`.

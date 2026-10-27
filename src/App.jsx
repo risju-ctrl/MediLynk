@@ -1,7 +1,9 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Link, Navigate, Route, Routes } from 'react-router-dom';
+import { Compass } from 'lucide-react';
 import { useAuth } from './auth/AuthContext.jsx';
 import ProtectedRoute from './auth/ProtectedRoute.jsx';
 import Layout from './components/Layout.jsx';
+import { EmptyState } from './components/ui.jsx';
 import { homeRoute } from './utils/roles.js';
 import Login from './pages/public/Login.jsx';
 import Register from './pages/public/Register.jsx';
@@ -21,12 +23,18 @@ import AdminUsers from './pages/admin/Users.jsx';
 
 function LandingGate() {
   const { user, loading } = useAuth();
-  if (loading) return <div className="landing-loading">Loading your care space…</div>;
+  if (loading) return <div className="splash" role="status">Loading…</div>;
   return user ? <Navigate to={homeRoute(user.role)} replace /> : <Landing />;
 }
 
 function NotFound() {
-  return <div className="card mx-auto mt-10 max-w-lg" data-testid="not-found"><h1 className="text-lg font-semibold text-slate-900">Page not found</h1><p className="mt-1 text-sm text-slate-600">That route does not exist in the prototype.</p></div>;
+  const { user } = useAuth();
+  return (
+    <div className="card card-pad narrow" data-testid="not-found">
+      <EmptyState icon={Compass} title="We can’t find that page">The link may be old or mistyped.</EmptyState>
+      <div className="center-row"><Link to={user ? homeRoute(user.role) : '/'} className="btn btn-primary">Go home</Link></div>
+    </div>
+  );
 }
 
 export default function App() {

@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getAvailability } from '../api/appointments.js';
-import { fmtTime } from '../utils/timeRules.js';
+import { fmtTime, toDateInput } from '../utils/timeRules.js';
 
 const STATE_LABEL = {
-  free: 'Available',
+  free: 'Open',
   taken: 'Just taken',
-  buffer: 'Blocked by 10-minute buffer',
-  expired: 'Past / expired',
+  buffer: 'Too close to another visit',
+  expired: 'Past',
 };
 
-// Shared by the patient reschedule screen and the doctor recovery flow (REQ-06, REQ-07).
+// Shared by the patient reschedule action and the doctor recovery flow.
 export default function ReschedulePanel({ appointment, onDone }) {
   const [date, setDate] = useState('');
   const [selected, setSelected] = useState('');
@@ -25,7 +25,7 @@ export default function ReschedulePanel({ appointment, onDone }) {
 
   const submit = async () => {
     if (!selected) {
-      setError('Choose a new slot first.');
+      setError('Choose a new time first.');
       return;
     }
     setBusy(true);
@@ -40,24 +40,22 @@ export default function ReschedulePanel({ appointment, onDone }) {
   };
 
   return (
-    <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3" data-testid="reschedule-panel">
-      <label className="label" htmlFor={`date-${appointment.id}`}>
-        New date
-      </label>
-      <input
-        id={`date-${appointment.id}`}
-        type="date"
-        className="input max-w-xs"
-        value={date}
-        onChange={(event) => {
-          setDate(event.target.value);
-          setSelected('');
-        }}
-        data-testid="reschedule-date"
-      />
-      {isPending && <p className="mt-2 text-sm text-slate-500">Loading slots...</p>}
+    <div className="panel-inset" data-testid="reschedule-panel">
+      <div className="field">
+        <label className="label" htmlFor={`date-${appointment.id}`}>New date</label>
+        <input
+          id={`date-${appointment.id}`}
+          type="date"
+          className="input input-narrow"
+          min={toDateInput()}
+          value={date}
+          onChange={(event) => { setDate(event.target.value); setSelected(''); }}
+          data-testid="reschedule-date"
+        />
+      </div>
+      {isPending && date && <p className="muted">Loading times…</p>}
       {data && (
-        <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="slot-grid slot-grid-sm">
           {data.slots.map((slot, index) => (
             <button
               key={slot.start}
@@ -65,28 +63,21 @@ export default function ReschedulePanel({ appointment, onDone }) {
               disabled={slot.state !== 'free'}
               onClick={() => setSelected(slot.start)}
               data-testid={`reschedule-slot-${index}`}
-              className={`rounded-lg border px-2 py-1 text-left text-xs ${
-                slot.state !== 'free'
-                  ? 'cursor-not-allowed border-slate-200 bg-white text-slate-400'
-                  : selected === slot.start
-                    ? 'border-brand-600 bg-brand-50 text-brand-700'
-                    : 'border-slate-300 bg-white hover:border-brand-600'
-              }`}
+              aria-pressed={selected === slot.start}
+              className={`slot${selected === slot.start ? ' is-selected' : ''}`}
             >
-              <span className="block font-medium">{fmtTime(slot.start)}</span>
-              <span>{STATE_LABEL[slot.state]}</span>
+              <strong>{fmtTime(slot.start)}</strong>
+              <small>{STATE_LABEL[slot.state]}</small>
             </button>
           ))}
         </div>
       )}
-      {error && (
-        <p className="error" data-testid="reschedule-error">
-          {error}
-        </p>
-      )}
-      <button type="button" className="btn-primary mt-2" disabled={busy} onClick={submit} data-testid="reschedule-submit">
-        {busy ? 'Moving...' : 'Confirm new slot'}
-      </button>
+      {error && <p className="form-error" data-testid="reschedule-error">{error}</p>}
+      <div className="row-end">
+        <button type="button" className="btn btn-primary" disabled={busy} onClick={submit} data-testid="reschedule-submit">
+          {busy ? 'Moving…' : 'Confirm new time'}
+        </button>
+      </div>
     </div>
   );
 }

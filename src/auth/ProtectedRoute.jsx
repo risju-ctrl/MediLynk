@@ -1,23 +1,24 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { ShieldAlert } from 'lucide-react';
 import { useAuth } from './AuthContext.jsx';
-import { ROLE_LABELS } from '../utils/roles.js';
+import { ROLE_LABELS, homeRoute } from '../utils/roles.js';
+import { EmptyState } from '../components/ui.jsx';
 
-// Route guard: authentication first, then the allowed roles. The API re-checks every call (REQ-02).
+// Route guard: authentication first, then the allowed roles. The API re-checks every call.
 export default function ProtectedRoute({ roles, children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  if (loading) return <p className="p-8 text-sm text-slate-500">Restoring your session...</p>;
+  if (loading) return <div className="splash" role="status">Restoring your session…</div>;
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
 
   if (roles && !roles.includes(user.role)) {
     return (
-      <div className="card mx-auto mt-10 max-w-lg border-red-200" data-testid="forbidden-state">
-        <h2 className="text-lg font-semibold text-red-700">403 — Access denied</h2>
-        <p className="mt-2 text-sm text-slate-600">
-          Your role ({ROLE_LABELS[user.role]}) is not allowed on this page. This page is limited to:{' '}
-          {roles.map((role) => ROLE_LABELS[role]).join(', ')}.
-        </p>
+      <div className="card card-pad narrow" data-testid="forbidden-state">
+        <EmptyState icon={ShieldAlert} title="403 · You don’t have access to this page">
+          Your role ({ROLE_LABELS[user.role]}) can’t open it. This page is for {roles.map((role) => ROLE_LABELS[role]).join(', ')}.
+        </EmptyState>
+        <div className="center-row"><Link to={homeRoute(user.role)} className="btn btn-primary">Back to your home</Link></div>
       </div>
     );
   }

@@ -1,5 +1,28 @@
 # Changes
 
+## 2026-10-27 — Full visual redesign
+
+- New macOS-style design: rounded window shell, frosted sidebar, pastel cards, pill buttons, segmented
+  filters, bottom tab bar on phones. Palette taken from the logo. See `design-system/MASTER.md`.
+- Rewrote `src/index.css` as one organised, token-driven file (it was 539 lines of stacked overrides).
+  Tailwind is now only used for its reset.
+- Rebuilt the landing page: hero with a product preview, key facts, three steps, feature grid, role
+  switcher, call-to-action band, FAQ and footer. Sign in and Create account share a new split layout with
+  a show/hide password control and named demo accounts.
+- Redesigned every screen for all four roles. Patient: greeting, next-visit card with countdown, reminders,
+  week strip, booking with doctor cards and a day strip, appointments with Upcoming/Past tabs. Doctor:
+  stats, calendar with an "Up next" list. Staff: searchable table with filters. Room: video stage and
+  session panel.
+- Demo tools moved from a floating button (it covered content) into the toolbar.
+- Removed requirement IDs (REQ-xx) and "prototype" wording from patient-facing text; empty, loading and
+  error states now say what to do next.
+- **Deploy fix:** `BrowserRouter` now uses `basename` from Vite's base URL. Without it the site rendered
+  blank at `https://<user>.github.io/MediLynk/`.
+- Logos are now transparent PNGs (the white chip behind the lockup is gone). Added `public/favicon.png`.
+- Font changed from Atkinson Hyperlegible to Inter Variable (`@fontsource-variable/inter`); removed
+  `public/fonts/`.
+- All `data-testid` hooks and business rules are unchanged; `npm test` passes (15/15).
+
 ## Dependency decisions
 
 - **lucide-react 1.61.0** — the only new dependency. Justification: the app was

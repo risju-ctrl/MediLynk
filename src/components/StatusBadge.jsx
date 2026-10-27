@@ -1,26 +1,27 @@
-const STYLES = {
-  requested: 'bg-amber-100 text-amber-800',
-  confirmed: 'bg-slate-100 text-slate-700',
-  in_progress: 'bg-slate-100 text-slate-700',
-  completed: 'bg-emerald-50 text-emerald-800',
-  cancelled: 'bg-slate-200 text-slate-600',
-  no_show: 'bg-red-100 text-red-700',
-  synced: 'bg-emerald-50 text-emerald-800',
-  pending: 'bg-amber-100 text-amber-800',
-  failed: 'bg-amber-100 text-amber-800',
-  flagged: 'bg-red-100 text-red-700',
-  scheduled: 'bg-slate-100 text-slate-600',
-  sent: 'bg-slate-100 text-slate-700',
-  delivered: 'bg-emerald-50 text-emerald-800',
+// One badge for appointment, sync and reminder states. Colour only ever means good, waiting or bad.
+const TONE = {
+  requested: 'warning',
+  confirmed: 'info',
+  in_progress: 'info',
+  completed: 'positive',
+  cancelled: 'neutral',
+  no_show: 'negative',
+  synced: 'positive',
+  pending: 'warning',
+  failed: 'warning',
+  flagged: 'negative',
+  scheduled: 'neutral',
+  sent: 'info',
+  delivered: 'positive',
 };
 
+const LABEL = { in_progress: 'In progress', no_show: 'No show' };
+
 export default function StatusBadge({ status, label }) {
-  const text = label || String(status || '').replace('_', ' ');
+  const raw = label || LABEL[status] || String(status || '').replace('_', ' ');
+  const text = raw.charAt(0).toUpperCase() + raw.slice(1);
   return (
-    <span
-      className={`chip ${STYLES[status] || 'bg-slate-100 text-slate-600'}`}
-      data-testid={`status-badge-${status}`}
-    >
+    <span className={`badge badge-${TONE[status] || 'neutral'}`} data-testid={`status-badge-${status}`}>
       {text}
     </span>
   );
